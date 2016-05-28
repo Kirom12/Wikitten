@@ -40,13 +40,9 @@ class Wiki
         $path = realpath(LIBRARY . DIRECTORY_SEPARATOR . $page);
         $parts = explode('/', $page);
 
-        $not_found = function () use ($page) {
-            $page = htmlspecialchars($page, ENT_QUOTES);
-            throw new Exception("Page '$page' was not found");
-        };
-
         if (!$this->_pathIsSafe($path)) {
-            $not_found();
+            $page = htmlspecialchars($page, ENT_QUOTES);
+            $this->_404("Page '$page' was not found", $page);
         }
 
         // Handle directories by showing a neat listing of its
@@ -313,7 +309,7 @@ class Wiki
         return false;
     }
 
-    protected function _404($message = 'Page not found.')
+    protected function _404($message = 'Page not found.', $page_url = null)
     {
         header('HTTP/1.0 404 Not Found', true);
         $page_data = $this->_default_page_data;
@@ -322,7 +318,8 @@ class Wiki
         $this->_view('uhoh', array(
             'error' => $message,
             'parts' => array('Uh-oh'),
-            'page' => $page_data
+            'page' => $page_data,
+            'page_url' => $page_url
         ));
 
         exit;
@@ -388,6 +385,46 @@ class Wiki
         file_put_contents($path, $source);
 
         $redirect_url = BASE_URL . "/$file";
+        header("HTTP/1.0 302 Found", true);
+        header("Location: $redirect_url");
+
+        exit();
+    }
+
+    public function createAction()
+    {
+        if (!ENABLE_EDITING) {
+            $this->_404();
+        }
+
+        $request = parse_url($_SERVER['REQUEST_URI']);
+        $page = str_replace("###" . APP_DIR . "/", "", "###" . urldecode($request['path']));
+        $is_directory = (substr($request['path'], -2) == "//") ? true : false;
+
+        $path = realpath(LIBRARY . DIRECTORY_SEPARATOR);
+
+        $parts = explode('/', $page);
+        $parts = array_filter($parts);
+
+        foreach ($parts as $key => $part) {
+            if (!file_exists($path . DIRECTORY_SEPARATOR . $part)) {
+
+                if ($is_directory || $key != count($parts) - 1) {
+                    mkdir($path . DIRECTORY_SEPARATOR . $part);
+                } else {
+                    $parts_file = explode('.', $part);
+
+                    if (count($parts_file) == 1) {
+                        $part = $part . ".md";
+                    }
+
+                    file_put_contents($path . DIRECTORY_SEPARATOR . $part, $part);
+                }
+            }
+            $path = $path . DIRECTORY_SEPARATOR . $part;
+        }
+
+        $redirect_url = substr(BASE_URL . DIRECTORY_SEPARATOR . $page, 0, -1);
         header("HTTP/1.0 302 Found", true);
         header("Location: $redirect_url");
 
