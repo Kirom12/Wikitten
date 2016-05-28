@@ -412,17 +412,18 @@ class Wiki
 
         foreach ($parts as $key => $part) {
             if (!file_exists($path . DIRECTORY_SEPARATOR . $part)) {
-
-                if ($is_directory || $key != count($parts) - 1) {
+                if ($key != count($parts) - 1 || $is_directory)
+                {
                     mkdir($path . DIRECTORY_SEPARATOR . $part);
+                    echo 'dir';
                 } else {
                     $parts_file = explode('.', $part);
-
-                    if (count($parts_file) == 1) {
-                        $part = $part . ".md";
+                    if (count($parts_file) > 1) {
+                        file_put_contents($path . DIRECTORY_SEPARATOR . $part, "New page");
+                    } else {
+                        mkdir($path . DIRECTORY_SEPARATOR . $part);
+                        echo 'diir';
                     }
-
-                    file_put_contents($path . DIRECTORY_SEPARATOR . $part, "New page");
                 }
             }
             $path = $path . DIRECTORY_SEPARATOR . $part;
