@@ -75,9 +75,13 @@
 
     <script>
         <?php if ($html): ?>
-            CodeMirror.defineInitHook(function () {
-                $('#source').hide();
-            });
+            <?php if ($new_page): ?>
+                $('#render').hide();
+            <?php else: ?>
+                CodeMirror.defineInitHook(function () {
+                    $('#source').hide();
+                });
+            <?php endif; ?>
         <?php endif ?>
 
         var mode = false;
@@ -117,7 +121,7 @@
             mode: mode
             <?php if(!ENABLE_EDITING): ?>
             ,readOnly: true
-            <?php endif ?>
+            <?php endif; ?>
         });
 
         $('#toggle').click(function (event) {

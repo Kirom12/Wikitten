@@ -107,6 +107,9 @@ class Wiki
             $html = \Michelf\MarkdownExtra::defaultTransform($source);
         }
 
+        // We need to enable the editing when a page is created
+        $new_page = ($source === "New page") ? true : false;
+
         $this->_view('render', array(
             'html' => $html,
             'source' => $source,
@@ -114,6 +117,7 @@ class Wiki
             'parts' => $parts,
             'page' => $page_data,
             'is_dir' => false,
+            'new_page' => $new_page,
             'use_pastebin' => $this->_usePasteBin()
         ));
     }
@@ -418,7 +422,7 @@ class Wiki
                         $part = $part . ".md";
                     }
 
-                    file_put_contents($path . DIRECTORY_SEPARATOR . $part, $part);
+                    file_put_contents($path . DIRECTORY_SEPARATOR . $part, "New page");
                 }
             }
             $path = $path . DIRECTORY_SEPARATOR . $part;
