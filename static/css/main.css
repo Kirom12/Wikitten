@@ -173,6 +173,20 @@ form {
     background: #333;
     color: #eee;
 }
+
+.btn-red {
+    padding: 4px 8px;
+    margin: 2px 0;
+    font-size: 85%;
+    background: #d9534f;
+    color: #eee;
+    border-radius: 3px;
+}
+.btn-red:hover {
+    background: #d43f3a;
+    color: #eee;
+}
+
 .directory-path {
     color: #7B848C;
     font-weight: normal;
@@ -256,4 +270,9 @@ form {
     margin-left: -13px;
     font-weight: bold;
     color: #333;
+}
+
+.delete-box {
+    display: none;
+    max-width: 300px;
 }

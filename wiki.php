@@ -61,12 +61,14 @@ class Wiki
             // etc.
             $page_data = $this->_default_page_data;
             $page_data['title'] = 'Listing: ' . $dir_name;
+            $page_data['file'] = $page;
 
             $this->_view('render', array(
                 'parts' => $parts,
                 'page' => $page_data,
                 'html' => "<h3><span class=\"directory-path\">$rest_parts/</span> $dir_name</h3><p>Use the tree menu on the left to select a file</p>",
-                'is_dir' => true
+                'is_dir' => true,
+                'use_pastebin' => null
             ));
             return;
         }
@@ -430,6 +432,39 @@ class Wiki
         }
 
         $redirect_url = BASE_URL . DIRECTORY_SEPARATOR . $page;
+        header("HTTP/1.0 302 Found", true);
+        header("Location: $redirect_url");
+
+        exit();
+    }
+
+    public function deleteAction()
+    {
+        if (!ENABLE_EDITING || $_SERVER['REQUEST_METHOD'] != 'GET' || !isset($_GET['ref']) || !is_string($_GET['ref'])) {
+            $this->_404();
+        }
+
+        $ref = $_GET['ref'];
+        $page = base64_decode($ref);
+        $path = realpath(LIBRARY . DIRECTORY_SEPARATOR);
+        $file = $path . DIRECTORY_SEPARATOR . $page;
+
+        if (is_dir($file)) {
+            $it = new RecursiveDirectoryIterator($file, RecursiveDirectoryIterator::SKIP_DOTS);
+            $items = new RecursiveIteratorIterator($it,RecursiveIteratorIterator::CHILD_FIRST);
+            foreach($items as $item) {
+                if (is_dir($item)){
+                    rmdir($item);
+                } else {
+                    unlink($item);
+                }
+            }
+            rmdir($file);
+        } else {
+            unlink($file);
+        }
+
+        $redirect_url = BASE_URL;
         header("HTTP/1.0 302 Found", true);
         header("Location: $redirect_url");
 

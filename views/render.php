@@ -3,7 +3,9 @@
         <?php if ($html && isset($source)): ?>
             <a href="javascript:;" class="btn-black" id="toggle">Toggle source</a>
         <?php endif ?>
-            <a href="" class="btn-black">Delete</a>
+        <?php if (ENABLE_EDITING): ?>
+            <a href="<?php echo BASE_URL . "/?a=delete&ref=" . base64_encode($page['file']); ?>" class="btn-red" id="delete">Delete</a>
+        <?php endif ?>
         <?php if ($use_pastebin): ?>
             <a href="javascript:;" class="btn-black" id="create-pastebin" title="Create public Paste on PasteBin">Create public Paste</a>
         <?php endif; ?>
@@ -32,6 +34,14 @@
         <?php endforeach ?>
     </ul>
 </div>
+
+<?php if (ENABLE_EDITING): ?>
+    <div class="alert alert-danger text-center center-block delete-box" id="delete-alert">
+        <i class="glyphicon glyphicon-trash"></i><strong> Do you really want to delete this file ?</strong><br/>
+        <a href="javascript:;" class="btn btn-danger btn-xs" id="delete-confirm">Yes</a>
+        <a href="javascript:;" class="btn btn-default btn-xs" id="delete-cancel">Cancel</a>
+    </div>
+<?php endif; ?>
 
 <?php if ($html): ?>
     <?php if ($use_pastebin): ?>
@@ -162,3 +172,20 @@
         <?php endif; ?>
     </script>
 <?php endif ?>
+
+<script>
+    var deleteLink = $('#delete').attr('href');
+    $('#delete').attr('href', 'javascript:;');
+    $('#delete-confirm').attr('href', deleteLink);
+
+    $('#delete').click(function (event) {
+        event.preventDefault();
+
+        $('#delete-alert').slideDown({ duration: 100 });
+    });
+    $('#delete-cancel').click(function (event) {
+        event.preventDefault();
+
+        $('#delete-alert').hide();
+    });
+</script>
