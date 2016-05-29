@@ -3,6 +3,7 @@
         <?php if ($html && isset($source)): ?>
             <a href="javascript:;" class="btn-black" id="toggle">Toggle source</a>
         <?php endif ?>
+            <a href="" class="btn-black">Delete</a>
         <?php if ($use_pastebin): ?>
             <a href="javascript:;" class="btn-black" id="create-pastebin" title="Create public Paste on PasteBin">Create public Paste</a>
         <?php endif; ?>
@@ -40,7 +41,7 @@
         <?php echo $html; ?>
     </div>
     <script>
-        $('#render pre').addClass('prettyprint linenums');
+        $('#render pre'). addClass('prettyprint linenums');
         prettyPrint();
 
         $('#render a[href^="#"]').click(function(event) {

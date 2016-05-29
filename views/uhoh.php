@@ -13,8 +13,7 @@
 <h1>Uh oh!</h1>
 <p>
 	An <strong>error</strong> ocurred: <code><?php echo $error ?></code>
-	<?php if ($page_url && ENABLE_EDITING): ?>
-		<?php $url = BASE_URL . "/" . $page_url ?>
-		Create <a href="<?php echo $url . "/?a=create" ?>"><?php echo $page_url; ?></a>
+	<?php if ($page['file'] && ENABLE_EDITING): ?>
+		Create <a href="<?php echo BASE_URL . "/?a=create&ref=" . base64_encode($page['file']) ?>"><?php echo $page['file']; ?></a>
 	<?php endif ?>
 </p>

@@ -313,17 +313,17 @@ class Wiki
         return false;
     }
 
-    protected function _404($message = 'Page not found.', $page_url = null)
+    protected function _404($message = 'Page not found.', $page = null)
     {
         header('HTTP/1.0 404 Not Found', true);
         $page_data = $this->_default_page_data;
+        $page_data['file'] = $page;
         $page_data['title'] = 'Not Found';
 
         $this->_view('uhoh', array(
             'error' => $message,
             'parts' => array('Uh-oh'),
-            'page' => $page_data,
-            'page_url' => $page_url
+            'page' => $page_data
         ));
 
         exit;
@@ -397,13 +397,15 @@ class Wiki
 
     public function createAction()
     {
-        if (!ENABLE_EDITING) {
+        if (!ENABLE_EDITING || $_SERVER['REQUEST_METHOD'] != 'GET' || !isset($_GET['ref']) || !is_string($_GET['ref'])) {
             $this->_404();
         }
 
-        $request = parse_url($_SERVER['REQUEST_URI']);
-        $page = str_replace("###" . APP_DIR . "/", "", "###" . urldecode($request['path']));
-        $is_directory = (substr($request['path'], -2) == "//") ? true : false;
+        $ref = $_GET['ref'];
+        $page = base64_decode($ref);
+
+        // Use for directory with a '.' (use '/' after url)
+        $force_directory = (substr($page, -1) == "/") ? true : false;
 
         $path = realpath(LIBRARY . DIRECTORY_SEPARATOR);
 
@@ -412,24 +414,22 @@ class Wiki
 
         foreach ($parts as $key => $part) {
             if (!file_exists($path . DIRECTORY_SEPARATOR . $part)) {
-                if ($key != count($parts) - 1 || $is_directory)
+                if ($key != count($parts) - 1 || $force_directory)
                 {
                     mkdir($path . DIRECTORY_SEPARATOR . $part);
-                    echo 'dir';
                 } else {
                     $parts_file = explode('.', $part);
                     if (count($parts_file) > 1) {
                         file_put_contents($path . DIRECTORY_SEPARATOR . $part, "New page");
                     } else {
                         mkdir($path . DIRECTORY_SEPARATOR . $part);
-                        echo 'diir';
                     }
                 }
             }
             $path = $path . DIRECTORY_SEPARATOR . $part;
         }
 
-        $redirect_url = substr(BASE_URL . DIRECTORY_SEPARATOR . $page, 0, -1);
+        $redirect_url = BASE_URL . DIRECTORY_SEPARATOR . $page;
         header("HTTP/1.0 302 Found", true);
         header("Location: $redirect_url");
 
