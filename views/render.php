@@ -51,7 +51,7 @@
         <?php echo $html; ?>
     </div>
     <script>
-        $('#render pre'). addClass('prettyprint linenums');
+        $('#render pre').addClass('prettyprint linenums');
         prettyPrint();
 
         $('#render a[href^="#"]').click(function(event) {
@@ -72,7 +72,7 @@
             </div>
         <?php endif ?>
 
-        <form method="POST" action="<?php echo BASE_URL . "/?a=edit" ?>">
+        <form method="POST" action="<?php echo BASE_URL . "/?a=edit" ?>" id="edit-form">
             <input type="hidden" name="ref" value="<?php echo base64_encode($page['file']) ?>">
             <textarea id="editor" name="source" class="form-control" rows="<?php echo substr_count($source, "\n") + 1; ?>"><?php echo $source; ?></textarea>
 
@@ -142,7 +142,6 @@
             if ($('#source').is(':visible')) {
                 editor.refresh();
             }
-
         });
 
         <?php if ($use_pastebin): ?>
@@ -173,19 +172,31 @@
     </script>
 <?php endif ?>
 
-<script>
-    var deleteLink = $('#delete').attr('href');
-    $('#delete').attr('href', 'javascript:;');
-    $('#delete-confirm').attr('href', deleteLink);
+<?php if (ENABLE_EDITING): ?>
+    <script>
+        var deleteLink = $('#delete').attr('href');
+        $('#delete').attr('href', 'javascript:;');
+        $('#delete-confirm').attr('href', deleteLink);
 
-    $('#delete').click(function (event) {
-        event.preventDefault();
+        $('#delete').click(function (event) {
+            event.preventDefault();
 
-        $('#delete-alert').slideDown({ duration: 100 });
-    });
-    $('#delete-cancel').click(function (event) {
-        event.preventDefault();
+            $('#delete-alert').slideDown({ duration: 100 });
+        });
+        $('#delete-cancel').click(function (event) {
+            event.preventDefault();
 
-        $('#delete-alert').hide();
-    });
-</script>
+            $('#delete-alert').hide();
+        });
+
+        $('#edit-form').change(function() {
+            $(window).on('beforeunload', function(){
+                return 'Are you sure you want to leave?';
+            });
+        });
+        $('#edit-form').on("submit", function () {
+            $(window).off('beforeunload');
+            return true;
+        });
+    </script>
+<?php endif; ?>
