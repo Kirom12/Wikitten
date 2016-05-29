@@ -110,7 +110,10 @@ class Wiki
         }
 
         // We need to enable the editing when a page is created
-        $new_page = ($source === "New page") ? true : false;
+        $new_page = false;
+        if ($source === "New page" && ENABLE_EDITING) {
+            $new_page = true;
+        }
 
         $this->_view('render', array(
             'html' => $html,
