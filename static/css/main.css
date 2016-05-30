@@ -141,6 +141,9 @@ form {
     display: block;
     text-decoration: none;
 }
+#sidebar li [data-role="directory-all"]{
+    margin-right: 8px;
+}
 .breadcrumb {
     background: none;
     margin-bottom: 0;
@@ -264,7 +267,7 @@ form {
     margin-top: 10px;
 }
 #tree-filter-results li a:focus:before,
-#tree li a:focus:before {
+#tree li a:nth-child(3):focus:before {
     content: "↪";
     float: left;
     margin-left: -13px;
@@ -275,4 +278,8 @@ form {
 .delete-box {
     display: none;
     max-width: 300px;
+}
+
+.inline-item {
+    display: inline;
 }

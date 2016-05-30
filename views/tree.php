@@ -13,7 +13,7 @@ function tree($array, $parent, $parts = array(), $step = 0) {
             $open = $step !== false && (isset($parts[$step]) && $key == $parts[$step]);
 
             $t .= '<li class="directory'. ($open ? ' open' : '') .'">';
-                $t .= '<a href="#" data-role="directory"><i class="glyphicon glyphicon-folder-'. ($open ? 'open' : 'close') .'"></i>&nbsp; ' . $key . '</a>';
+                $t .= '<a href="'. $parent . '/' . $key . '" class="pull-right"><i class="glyphicon glyphicon-pencil"></i></a><a href="#" data-role="directory-all" class="pull-right"><i class="glyphicon glyphicon-triangle-bottom"></i></a><a href="#" data-role="directory"><i class="glyphicon glyphicon-folder-'. ($open ? 'open' : 'close') .'"></i>&nbsp; ' . $key . '</a>';
                 $t .= tree($item, "$parent/$key", $parts, $open ? $step + 1 : false);
             $t .=  '</li>';
         } else {
@@ -49,6 +49,9 @@ function tree($array, $parent, $parts = array(), $step = 0) {
     $(document).ready(function() {
         var iconFolderOpenClass  = 'glyphicon glyphicon-folder-open',
             iconFolderCloseClass = 'glyphicon glyphicon-folder-close',
+
+            iconFolderAllOpenClass = 'glyphicon glyphicon-triangle-top';
+            iconFolderAllCloseClass = 'glyphicon glyphicon-triangle-bottom';
 
             // Handle live search/filtering:
             tree             = $('#tree'),
@@ -131,6 +134,35 @@ function tree($array, $parent, $parts = array(), $step = 0) {
                     $(subtree).slideDown({ duration: 100 });
                 }
                 icon.addClass(iconFolderOpenClass);
+            }
+        });
+
+        $(document).on('click', '#sidebar a[data-role="directory-all"]', function (event) {
+            event.preventDefault();
+
+            var icon = $(this).children('.glyphicon');
+            var open = icon.hasClass(iconFolderAllOpenClass);
+            var subtree = $(this).parent().find('ul');
+            var folderIcons =  $(this).parent().find('a[data-role="directory"]').children('.glyphicon');
+            var folderIconsAllExtend = $(this).parent().find('a[data-role="directory-all"]').children('.glyphicon');
+
+            icon.removeClass(iconFolderAllOpenClass).removeClass(iconFolderAllCloseClass);
+            folderIcons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+            folderIconsAllExtend.removeClass(iconFolderAllOpenClass).removeClass(iconFolderAllCloseClass);
+            if (open) {
+                if (typeof subtree != 'undefined') {
+                    $(subtree).slideUp({ duration: 100 });
+                }
+                icon.addClass(iconFolderAllCloseClass);
+                folderIcons.addClass(iconFolderCloseClass);
+                folderIconsAllExtend.addClass(iconFolderAllCloseClass);
+            } else {
+                if (typeof subtree != 'undefined') {
+                    $(subtree).slideDown({ duration: 100 });
+                }
+                icon.addClass(iconFolderAllOpenClass);
+                folderIcons.addClass(iconFolderOpenClass);   
+                folderIconsAllExtend.addClass(iconFolderAllOpenClass);             
             }
         });
     });
