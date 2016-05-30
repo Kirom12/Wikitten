@@ -386,7 +386,7 @@ class Wiki
         // scanning of files:
         // @todo: we CAN give back a more informative error message
         // for files that aren't writable...
-        if (!$this->_pathIsSafe($path) && !is_writable($path)) {
+        if (!$this->_pathIsSafe($path) || !is_writable($path)) {
             $this->_404();
         }
 
@@ -412,7 +412,14 @@ class Wiki
         // Use for directory with a '.' (use '/' after url)
         $force_directory = (substr($page, -1) == "/") ? true : false;
 
+        //useless
         $path = realpath(LIBRARY . DIRECTORY_SEPARATOR);
+
+        if($page == '' || strpos($page, '../') !== false) {
+            $this->_404("Invalid filename");
+        }
+
+        $page = str_replace("'", " ", $page);
 
         $parts = explode('/', $page);
         $parts = array_filter($parts);
@@ -449,11 +456,14 @@ class Wiki
 
         $ref = $_GET['ref'];
         $page = base64_decode($ref);
-        $path = realpath(LIBRARY . DIRECTORY_SEPARATOR);
-        $file = $path . DIRECTORY_SEPARATOR . $page;
+        $path = realpath(LIBRARY . DIRECTORY_SEPARATOR . $page);
 
-        if (is_dir($file)) {
-            $it = new RecursiveDirectoryIterator($file, RecursiveDirectoryIterator::SKIP_DOTS);
+        if(!$this->_pathIsSafe($path) || !is_writable($path)) {
+            $this->_404();
+        }
+
+        if (is_dir($path)) {
+            $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
             $items = new RecursiveIteratorIterator($it,RecursiveIteratorIterator::CHILD_FIRST);
             foreach($items as $item) {
                 if (is_dir($item)){
@@ -462,9 +472,9 @@ class Wiki
                     unlink($item);
                 }
             }
-            rmdir($file);
+            rmdir($path);
         } else {
-            unlink($file);
+            unlink($path);
         }
 
         $redirect_url = BASE_URL;
