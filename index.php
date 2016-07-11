@@ -1,15 +1,4 @@
 <?php
-session_start();
-
-// For authentification
-// if (!isset($_SESSION['auth'])) {
-//     $redirect_url = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/' . 'perso/';
-
-//     header("HTTP/1.0 302 Found", true);
-//     header("Location: $redirect_url");
-//     exit();
-// }
-
 // Conditionally load configuration from a config.php file in
 // the site root, if it exists.
 if (is_file($config_file = __DIR__ . DIRECTORY_SEPARATOR . 'config.php')) {

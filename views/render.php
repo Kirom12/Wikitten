@@ -85,13 +85,19 @@
     </div>
 
     <script>
+        // Check if new page or a quicksave
         <?php if ($html): ?>
             <?php if ($new_page): ?>
                 $('#render').hide();
             <?php else: ?>
-                CodeMirror.defineInitHook(function () {
-                    $('#source').hide();
-                });
+                if (sessionStorage.getItem('quickSave') == 'true') {
+                    $('#render').hide();
+                    sessionStorage.removeItem('quickSave');
+                } else {
+                    CodeMirror.defineInitHook(function () {
+                        $('#source').hide();
+                    });
+                }
             <?php endif; ?>
         <?php endif ?>
 
@@ -174,6 +180,7 @@
 
 <?php if (ENABLE_EDITING): ?>
     <script>
+        // Alert 
         var deleteLink = $('#delete').attr('href');
         $('#delete').attr('href', 'javascript:;');
         $('#delete-confirm').attr('href', deleteLink);
@@ -197,6 +204,17 @@
         $('#edit-form').on("submit", function () {
             $(window).off('beforeunload');
             return true;
+        });
+
+        // Quick save with ctrl+s.
+        $('#edit-form').keydown(function(e) {
+            if (e.which == 83 && e.ctrlKey) {
+                e.preventDefault();
+                
+                sessionStorage.setItem('quickSave', true);
+
+                $('#edit-form').submit();
+            }
         });
     </script>
 <?php endif; ?>
